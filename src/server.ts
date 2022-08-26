@@ -1,6 +1,7 @@
 import express,{ Router, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import { filter } from 'bluebird';
 
 (async () => {
 
@@ -31,7 +32,19 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+app.get('/filteredimage',async(req: Request, res: Response)=>{
+const image_url = req.query.image_url.toString();
+if(!image_url){
+res.status(400).send('Image url is missing and Required');
 
+}
+
+const filteredimage = await filterImageFromURL(image_url);
+res.status(200).sendFile(filteredimage,()=>{
+  deleteLocalFiles([filteredimage]);
+})
+
+})
   //! END @TODO1
   
   // Root Endpoint
